@@ -1,0 +1,84 @@
+@import "mixins.less";
+@import "cssreset-min.css";
+
+* {
+	.box-sizing(border-box);
+}
+
+html, body {
+	height: 100%;
+}
+
+body {
+	-webkit-user-select:none;
+}
+
+
+header {	
+	height: 72px;
+	padding: 0px 40px;	
+
+	#gradient > .vertical(#fff, #dbddf6);
+
+	border-top: 1px solid #f7f8fb;
+	border-bottom: 1px solid #c0c1ee;
+	
+	.box();
+	.box-align(center);
+
+	input {
+		border: 1px solid #bababa;
+		outline: none;
+
+		height: 30px;
+		width: 620px;
+		padding: 8px;
+		padding-right: 30px;
+
+		font-size: 16px;
+
+		.border-radius(5px);
+
+		background: #fff url(../images/search.png) 590px 4px no-repeat;
+	}	
+
+	+ div {		
+		height: 47px;
+		border-bottom: 1px solid #eee;	
+		.box-shadow(1px 1px 10px rgba(0,0,0,.25));
+	}
+}
+
+article {	
+	.box();
+	.box-align(stretch);
+	.box-sizing(border-box);
+
+	section {		
+		.box-flex(1);
+		padding: 0px 40px;
+		margin-top: 40px;
+
+		text-align: center;
+		overflow: hidden;
+
+		width: 100%;
+		height: 100%;
+
+		iframe {
+			border: 0px;
+			width: 100%;
+			height: 100%;
+			
+			overflow: hidden;
+		}
+	}
+
+	aside {
+		width: 200px;
+		padding: 0px 40px;
+		margin-top: 40px;
+
+		border-right: 1px solid #e0e1e8;
+	}
+}

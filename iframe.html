@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script type="text/javascript" src="lib/jquery.min.js"></script>
+		<script>
+			var url = document.location.toString().match(/url=(.*)/)[1];
+
+			$.get(url).success(function(resp){ 
+				document.body.innerHTML = resp;
+
+				parent._pageLoaded();
+			});
+
+			$('a').live('click', function(evt){ 
+				console.warn(evt.target.href);
+				parent.app.openLink(evt.target.href);
+			});
+		</script>		
+
+		<link rel="stylesheet" href="assets/css/readability.css" media="screen">
+		<link rel="stylesheet" href="assets/css/readability-print.css" media="print">
+	</head>
+	<body>				
+	</body>
+</html>
