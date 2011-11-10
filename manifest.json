@@ -7,18 +7,9 @@
     	"launch": {
       		"local_path": "index.html"
     	}
-	},  	
-
-	"content_scripts": [
-	    {
-	      "matches": ["http://*/*", "https://*/*"],
-	      "js": ["lib/browser_api.js","assets/js/content_script.js"],
-	      "all_frames": true,
-	      "run_at": "document_end"
-	    }
-	],
+	}, 	
 
 	"permissions": [
-  		"tabs", "http://*/*", "https://*/*"
+  		"http://*/*", "https://*/*"
 	]
 }
