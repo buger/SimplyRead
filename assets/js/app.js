@@ -14,13 +14,45 @@
     function App() {
       App.__super__.constructor.apply(this, arguments);
     }
-    App.prototype.el = $('article');
+    App.prototype.el = $('body');
     App.prototype.events = {
-      "click aside a": "clickLink"
+      "click aside a": "clickLink",
+      "submit header form": "search"
     };
     App.prototype.initialize = function() {
       this.spinner = new Spinner().spin();
-      return this.section = this.$('section');
+      this.section = this.$('section');
+      return $('header input').autocomplete({
+        source: __bind(function(request, response) {
+          return this.suggest(request.term, response);
+        }, this)
+      });
+    };
+    App.prototype.suggest = function(text, callback) {
+      return $.ajax({
+        url: "http://www.google.ru/s?hl=ru&cp=2&gs_id=c&xhr=t&q=" + text,
+        complete: function(resp) {
+          var results;
+          results = JSON.parse(resp.responseText);
+          results = _.map(results[1], function(i) {
+            return {
+              'value': i[0]
+            };
+          });
+          return callback(_.first(results, 5));
+        }
+      });
+    };
+    App.prototype.search = function(evt) {
+      var text;
+      text = evt.target.text.value;
+      $.ajax({
+        url: "http://www.google.ru/s?pq=asdasd&hl=ru&cp=4&gs_id=r&xhr=t&q=" + text + "&pf=p&newwindow=1&source=hp&pbx=1&oq=&aq=&aqi=&aql=&gs_sm=&gs_upl=&bav=on.2,or.r_gc.r_pw.r_cp.,cf.osb&fp=994b03860695b560&biw=1140&bih=331&ech=7&psi=-ZDGTvujLIrtOZLU2bsP.1321636116145.1",
+        complete: function(resp) {
+          return console.warn(resp.responseText);
+        }
+      });
+      return false;
     };
     App.prototype.clickLink = function(evt) {
       return this.openLink(evt.target.href);

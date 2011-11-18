@@ -45,7 +45,7 @@ header input {
   border-radius: 5px;
   background: white url(../images/search.png) 590px 4px no-repeat;
 }
-header + div {
+nav {
   height: 47px;
   border-bottom: 1px solid #eee;
   -webkit-box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.25);
@@ -85,4 +85,21 @@ article aside {
   padding: 0px 40px;
   margin-top: 40px;
   border-right: 1px solid #e0e1e8;
+}
+.ui-autocomplete {
+  position: absolute;
+  top: 51px;
+  left: 40px;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: white;
+}
+.ui-autocomplete li a {
+  display: inline-block;
+  width: 100%;
+  padding: 3px 8px;
+}
+.ui-autocomplete li a.ui-state-hover {
+  background: #eee;
 }
