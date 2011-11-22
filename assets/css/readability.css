@@ -4,7 +4,7 @@ body{font-size:10px;line-height:1;}
 #readabilityBody {
 	overflow: hidden;	
 }
-#readability-logo,#arc90-logo,.footer-twitterLink,#readTools a,a.rdbTK-powered span{background-color:transparent!important;background-image:url(http://lab.arc90.com/experiments/readability/images/sprite-readability.png)!important;background-repeat:no-repeat!important;}
+#readability-logo,#arc90-logo,.footer-twitterLink,#readTools a,a.rdbTK-powered span{background-color:transparent!important;background-repeat:no-repeat!important;}
 #readOverlay{text-rendering:optimizeLegibility;display:block;position:absolute;top:0;left:0;width:100%;}
 #readInner{max-width:800px;margin:1em auto;}
 #readInner a{color:#039;text-decoration:none;}
@@ -40,11 +40,11 @@ a.rdbTK-powered span{display:inline-block;height:22px;margin-left:2px;background
 .style-apertura #rdb-inverse,.style-athelas #rdb-athelas{display:block;}
 #rdb-footer-print,#readability-url,.rdbTypekit #rdb-footer-right .footer-twitterLink,span.version{display:none;}
 /* Tools */
-#readTools{width:34px;height:150px;position:fixed;z-index:100;top:10px;left:10px;}
-#readTools a{overflow:hidden;margin-bottom:8px;display:block;opacity:.4;text-indent:-99999px;height:34px;width:34px;text-decoration:none;filter:alpha(opacity=40);}
+#readTools{height:30px;position:fixed;z-index:100;top:0px;right:0px;}
+#readTools a{opacity:.4; display: inline-block; text-indent:-99999px;height:30px;width:30px;text-decoration:none;filter:alpha(opacity=40); background-repeat: no-repeat;}
 #reload-page{background-position:0 0;}
-#print-page{background-position:-36px 0;}
-#email-page{background-position:-72px 0;}
+#print-page{background-image:url(../images/print.png);}
+#email-page{background-image:url(../images/mail.png); display: none;}
 #kindle-page{background-position:-108px 0;}
 #readTools a:hover,#readTools a:focus{opacity:1;filter:alpha(opacity=100);}
 /* @group User Styles */

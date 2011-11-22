@@ -14,23 +14,38 @@
     function App() {
       App.__super__.constructor.apply(this, arguments);
     }
+    App.prototype.search_template = Handlebars.compile($("#search_result_tmpl").html());
     App.prototype.el = $('body');
     App.prototype.events = {
       "click aside a": "clickLink",
-      "submit header form": "search"
+      "click nav a": "changeSource"
     };
     App.prototype.initialize = function() {
       this.spinner = new Spinner().spin();
-      this.section = this.$('section');
-      return $('header input').autocomplete({
+      this.section = this.$('section').children();
+      $('header input').autocomplete({
         source: __bind(function(request, response) {
           return this.suggest(request.term, response);
         }, this)
       });
+      $('aside').hover(function() {
+        if ($('aside').hasClass('minimized')) {
+          return $('aside').addClass('hover');
+        }
+      }, function() {
+        if ($('aside').hasClass('minimized')) {
+          return $('aside').removeClass('hover');
+        }
+      });
+      return this.search("");
     };
     App.prototype.suggest = function(text, callback) {
+      if (text.match(/http[s]?:\/\//)) {
+        return this.openLink(text);
+      }
+      this.search(text);
       return $.ajax({
-        url: "http://www.google.ru/s?hl=ru&cp=2&gs_id=c&xhr=t&q=" + text,
+        url: "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=" + text,
         complete: function(resp) {
           var results;
           results = JSON.parse(resp.responseText);
@@ -39,48 +54,130 @@
               'value': i[0]
             };
           });
-          return callback(_.first(results, 5));
+          return callback(_.first(results, 4));
         }
       });
     };
-    App.prototype.search = function(evt) {
-      var text;
-      text = evt.target.text.value;
-      $.ajax({
-        url: "http://www.google.ru/s?pq=asdasd&hl=ru&cp=4&gs_id=r&xhr=t&q=" + text + "&pf=p&newwindow=1&source=hp&pbx=1&oq=&aq=&aqi=&aql=&gs_sm=&gs_upl=&bav=on.2,or.r_gc.r_pw.r_cp.,cf.osb&fp=994b03860695b560&biw=1140&bih=331&ech=7&psi=-ZDGTvujLIrtOZLU2bsP.1321636116145.1",
-        complete: function(resp) {
-          return console.warn(resp.responseText);
-        }
+    App.prototype.search = function(text) {
+      var data, source;
+      this.$('aside').removeClass('minimized hover');
+      source = this.$('nav .active').data('source');
+      if (source === 'twitter') {
+        return this.twitterSearch(text);
+      }
+      data = {
+        AppID: "F004F1AD3D4BA238DD3F3D67F2D0059E6626F776",
+        jsonType: "callback",
+        Query: text,
+        Sources: source,
+        Version: "2.0"
+      };
+      if (source === 'News') {
+        data.Market = store.get('news_market');
+        data.SortBy = 'Relevance';
+      }
+      return $.ajax({
+        url: 'http://api.bing.net/json.aspx?JsonCallback=?',
+        dataType: 'jsonp',
+        data: data,
+        success: __bind(function(resp) {
+          var results;
+          if (resp.SearchResponse[source]) {
+            results = _.map(resp.SearchResponse[source].Results, function(r) {
+              var match, result;
+              if (source === 'Video') {
+                r.Description = "<img src='" + r.StaticThumbnail.Url + "' />";
+                match = r.PlayUrl.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/);
+                r.DisplayUrl = match[3];
+              } else {
+                r.Description = (r.Description || r.Snippet).slice(0, 201) + "...";
+              }
+              return result = {
+                title: r.Title,
+                article_url: r.Url || r.PlayUrl,
+                site_url: r.DisplayUrl || r.Source,
+                description: r.Description,
+                type: source.toLowerCase()
+              };
+            });
+            return this.$('aside').html(this.search_template({
+              'results': results
+            }));
+          } else {
+            this.$('aside').html(this.search_template({
+              'results': []
+            }));
+            if (!store.get('news_market')) {
+              store.set('news_market', 'en-US');
+              return this.search(text);
+            }
+          }
+        }, this)
       });
+    };
+    App.prototype.twitterSearch = function(text) {
+      return $.ajax({
+        url: "http://search.twitter.com/search.json?q=" + text + "%20filter:links",
+        dataType: "jsonp",
+        success: __bind(function(resp) {
+          var results;
+          if (!resp.results) {
+            return this.$('aside').html(this.search_template({
+              'results': []
+            }));
+          } else {
+            results = _.map(resp.results, function(r) {
+              var link, result;
+              link = r.text.match(/(http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?/)[0];
+              return result = {
+                title: r.from_user_name,
+                article_url: link,
+                description: r.text
+              };
+            });
+            return this.$('aside').html(this.search_template({
+              'results': results
+            }));
+          }
+        }, this)
+      });
+    };
+    App.prototype.changeSource = function(evt) {
+      if (evt.currentTarget.className !== 'active') {
+        this.$('nav .active').removeClass('active');
+        evt.currentTarget.className = 'active';
+        this.search(this.$('header input').val());
+      }
       return false;
     };
     App.prototype.clickLink = function(evt) {
-      return this.openLink(evt.target.href);
+      this.openLink(evt.currentTarget.href);
+      return false;
     };
     App.prototype.openLink = function(url) {
+      clearInterval(this.timer);
+      this.$('aside').removeClass('minimized hover');
+      window.scroll(0, 0);
       if (!url.match(/http/)) {
         url = "http://" + url;
       }
       this.section.empty();
-      this.spinner.spin();
-      this.section.append(this.spinner.el).css({
-        'padding-top': '40px'
-      });
+      this.spinner.spin(this.section[0]);
       this.iframe = global.document.createElement('iframe');
-      this.iframe.sandbox = "allow-forms allow-same-origin allow-scripts";
       this.iframe.src = "iframe.html?url=" + url;
+      this.iframe.style.visibility = "hidden";
+      this.url = url;
       this.section.append(this.iframe);
       return false;
     };
     App.prototype.loaded = function() {
+      this.$('aside').addClass('minimized');
+      readability(this.iframe.contentWindow, this.iframe.contentDocument, this.url);
       this.spinner.stop();
-      this.section.css({
-        'padding-top': '0px'
-      });
-      readability(this.iframe.contentWindow, this.iframe.contentDocument);
-      return setTimeout(__bind(function() {
+      this.iframe.style.visibility = "visible";
+      return this.timer = setInterval(__bind(function() {
         return this.iframe.style.height = $(this.iframe.contentDocument).height() + 'px';
-      }, this), 200);
+      }, this), 1000);
     };
     return App;
   })();

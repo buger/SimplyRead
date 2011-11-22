@@ -2,24 +2,45 @@
 <html>
 	<head>
 		<script type="text/javascript" src="lib/jquery.min.js"></script>
-		<script>
-			var url = document.location.toString().match(/url=(.*)/)[1];
-
-			$.get(url).success(function(resp){ 
-				document.body.innerHTML = resp;
-
-				parent._pageLoaded();
-			});
-
-			$('a').live('click', function(evt){ 
-				console.warn(evt.target.href);
-				parent.app.openLink(evt.target.href);
-			});
-		</script>		
+		<script type="text/javascript" src="lib/iscroll.js"></script>		
 
 		<link rel="stylesheet" href="assets/css/readability.css" media="screen">
 		<link rel="stylesheet" href="assets/css/readability-print.css" media="print">
 	</head>
-	<body>				
+	<body style="height: 100%; width: 100%; position: relative;">				
+		<script>
+			var url = document.location.toString().match(/url=(.*)/)[1];
+
+			function loadURL(url) {
+				console.log('loading', url);
+
+				$.get(url).success(function(resp){
+					match = resp.match(/META http-equiv="refresh" content=".*URL=([^"]*)\"/);
+
+					if (match) {
+						return loadURL(match[1])
+					}
+
+					var responseHtml = resp.replace(/\n/g,'\uffff').replace(/<script.*?>.*?<\/script>/gi, '');
+
+	                responseHtml = responseHtml.replace(/\n/g,'\uffff').replace(/<script.*?>.*?<\/script>/gi, '');
+
+	                responseHtml = responseHtml.replace(/\uffff/g,'\n').replace(/<(\/?)noscript/gi, '<$1div');
+
+					document.body.innerHTML = responseHtml;
+
+					parent._pageLoaded();
+				});
+			}
+
+			loadURL(url);
+
+			$('#readInner a').live('click', function(evt){ 
+				if (evt.target.className != '_click_through')
+					parent.app.openLink(evt.target.href);
+				else
+					return true
+			});
+		</script>		
 	</body>
 </html>

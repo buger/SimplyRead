@@ -1,4 +1,15 @@
-function readability(window, document) {
+function readability(window, document, url) {    
+    url = url.replace(/(\?|\#).*/,'').replace(/\/$/,'');
+    
+    var match = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/);
+
+    if (match)
+        domain = match[2] + "://"+match[3];
+    else
+        domain = url
+
+
+
     readStyle = "style-athelas"
     readMargin = "margin-narrow"
     readSize = "size-large"
@@ -60,7 +71,7 @@ function readability(window, document) {
             trim:                  /^\s+|\s+$/g,
             normalize:             /\s{2,}/g,
             killBreaks:            /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
-            videos:                /http:\/\/(www\.)?(youtube|vimeo)\.com/i,
+            videos:                /(youtube|vimeo|myvideo)\.(com|de|ru)/i,
             skipFootnoteLink:      /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i,
             nextLink:              /(next|weiter|continue|>([^\|]|$)|»([^\|]|$))/i, // Match: next, continue, >, >>, » but not >|, »| as those usually mean last.
             prevLink:              /(prev|earl|old|new|<|«)/i
@@ -108,9 +119,8 @@ function readability(window, document) {
                 articleContent    = document.createElement("DIV");
                 articleContent.id = "readability-content";
                 articleContent.innerHTML = [
-                    "<p>Sorry, readability was unable to parse this page for content. If you feel like it should have been able to, please <a href='http://code.google.com/p/arc90labs-readability/issues/entry'>let us know by submitting an issue.</a></p>",
-                    (readability.frameHack ? "<p><strong>It appears this page uses frames.</strong> Unfortunately, browser security properties often cause Readability to fail on pages that include frames. You may want to try running readability itself on this source page: <a href='" + readability.biggestFrame.src + "'>" + readability.biggestFrame.src + "</a></p>" : ""),
-                    "<p>Also, please note that Readability does not play very nicely with front pages. Readability is intended to work on articles with a sizable chunk of text that you'd like to read comfortably. If you're using Readability on a landing page (like nytimes.com for example), please click into an article first before using Readability.</p>"
+                    "<p>Sorry! We are not able to process this article… Would you want to see the <a href='"+url+" target='_blank' class='_click_through'>Original Article</a>?<p>",
+                    "<p>Also, please note that SimplyRead does not play very nicely with front pages. SimplyRead is intended to work on articles with a sizable chunk of text that you'd like to read comfortably. If you're using Readability on a landing page (like nytimes.com for example), please click into an article first before using SimplyRead.</p>"
                 ].join('');
 
                 nextPageLink = null;
@@ -166,7 +176,7 @@ function readability(window, document) {
                         "If you'd like to try rendering this page anyway, <a onClick='javascript:document.getElementById(\"readability-warning\").style.display=\"none\";document.getElementById(\"readability-content\").style.display=\"block\";'>click here</a> to continue.";
 
                 innerDiv.insertBefore( rootWarning, articleContent );
-            }
+            }            
 
             readability.postProcessContent(articleContent);
 
@@ -230,7 +240,7 @@ function readability(window, document) {
                 readability.addFootnotes(articleContent);
             }
 
-            readability.fixImageFloats(articleContent);
+            readability.fixImageFloats(articleContent);            
         },
 
         /**
@@ -254,6 +264,65 @@ function readability(window, document) {
             }
         },
 
+        fixRelativePath: function (articleContent) {
+            var els = articleContent.querySelectorAll('img, a')
+
+            for(var i=0, l = els.length; i < l; i+=1) {
+                var el = els[i];
+                var path = el.src || el.href;                                
+
+                path = path.replace(/^chrome-extension\:\/\/\w+\//,'');
+                
+                var match = path.match(/^chrome-extension\:\/\/(.*)/);
+
+                if (match) {
+                    path = "http://" + match[1];
+                    console.warn("LALA", path, match[1], match);
+                }
+                                
+                if (path && !path.match(/^http/)) {
+                    console.log('fixing path', path, domain)
+
+                    path = domain + "/" + path;
+                }
+                
+                if (el.nodeName === 'A')
+                    el.href = path;
+                else                
+                    el.src = path;
+            }
+        },
+
+        fixYoutubeVideos: function(articleContent) {
+            return false;
+
+            var template = '<object width="{{width}}" height="{{height}}"><param name="movie" value="http://www.youtube.com/v/{{vid}}"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/{{vid}}" type="application/x-shockwave-flash" width="{{width}}" height="{{height}}" allowscriptaccess="always" allowfullscreen="true"></embed></object>';
+
+            var iframes = articleContent.getElementsByTagName('iframe');
+
+            for(var i=0, l = iframes.length; i < l; i+=1) {
+                var iframe = iframes[i];
+                var match = iframe.src.match(/http:\/\/www.youtube.com\/embed\/(.*)/);
+
+                console.warn('fixing youtube video', match);
+                
+                if (match) {
+                    var embed = template
+                        .replace(/\{\{width\}\}/g, iframe.getAttribute('width'))
+                        .replace(/\{\{height\}\}/g, iframe.getAttribute('height'))
+                        .replace(/\{\{vid\}\}/g, match[1]);
+                    var el = document.createDocumentFragment();
+                    el.innerHTML = embed;
+
+                    console.warn(iframe.parentNode, iframe)
+
+                    iframe.outerHTML = embed;
+                }
+            }
+        },
+
+
+
         /**
          * Get the article tools Element that has buttons like reload, print, email.
          *
@@ -261,13 +330,10 @@ function readability(window, document) {
          **/
         getArticleTools: function () {            
             var articleTools = document.createElement("DIV");
-            return articleTools;
-
+            
             articleTools.id        = "readTools";
-            articleTools.innerHTML = 
-                "<a href='#' onclick='return window.location.reload()' title='Reload original page' id='reload-page'>Reload Original Page</a>" +
-                "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>" +
-                "<a href='#' onclick='readability.emailBox(); return false;' title='Email page' id='email-page'>Email Page</a>";
+            articleTools.innerHTML =             
+                "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>";
             
             return articleTools;
         },
@@ -625,7 +691,7 @@ function readability(window, document) {
 
             /* Clean out junk from the article content */
             readability.cleanConditionally(articleContent, "form");
-            readability.clean(articleContent, "object");
+            //readability.clean(articleContent, "object");
             readability.clean(articleContent, "h1");
 
             /**
@@ -635,9 +701,12 @@ function readability(window, document) {
             if(articleContent.getElementsByTagName('h2').length === 1) {
                 readability.clean(articleContent, "h2");
             }
+            readability.fixYoutubeVideos(articleContent);
             readability.clean(articleContent, "iframe");
 
             readability.cleanHeaders(articleContent);
+            readability.fixRelativePath(articleContent);
+
 
             /* Do these last as the previous stuff may have removed junk that will affect these */
             readability.cleanConditionally(articleContent, "table");
@@ -1492,7 +1561,7 @@ function readability(window, document) {
                         
                         readability.removeScripts(content);
 
-                        thisPage.innerHTML = thisPage.innerHTML + content.innerHTML;
+                        thisPage.innerHTML = thisPage.innerHTML + content.innerHTML;                        
 
                         /**
                          * After the page has rendered, post process the content. This delay is necessary because,
@@ -1578,7 +1647,7 @@ function readability(window, document) {
          **/
         clean: function (e, tag) {
             var targetList = e.getElementsByTagName( tag );
-            var isEmbed    = (tag === 'object' || tag === 'embed');
+            var isEmbed    = (tag === 'object' || tag === 'embed' || tag === 'iframe');
             
             for (var y=targetList.length-1; y >= 0; y-=1) {
                 /* Allow youtube and vimeo videos through as people usually want to see those. */

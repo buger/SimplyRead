@@ -1,77 +1,204 @@
+
 global = @
 
 class App extends Backbone.View
 
-	el: $('body')
+    search_template: Handlebars.compile $("#search_result_tmpl").html()
 
-	events:
-		"click aside a": "clickLink"
-		"submit header form": "search"
+    el: $('body')
 
-
-	initialize: ->
-		@spinner = new Spinner().spin()
-		@section = @$('section')
-
-		$('header input').autocomplete
-			source: (request, response) =>
-				@suggest request.term, response
-
-	
-	suggest: (text, callback) ->
-		$.ajax
-			url: "http://www.google.ru/s?hl=ru&cp=2&gs_id=c&xhr=t&q=#{text}"
-			complete: (resp) ->
-				results = JSON.parse(resp.responseText)
-				results = _.map results[1], (i) -> 'value':i[0]
-
-				callback _.first results, 5
-
-	search: (evt) ->
-		text = evt.target.text.value
-
-		$.ajax
-			url: "http://www.google.ru/s?pq=asdasd&hl=ru&cp=4&gs_id=r&xhr=t&q=#{text}&pf=p&newwindow=1&source=hp&pbx=1&oq=&aq=&aqi=&aql=&gs_sm=&gs_upl=&bav=on.2,or.r_gc.r_pw.r_cp.,cf.osb&fp=994b03860695b560&biw=1140&bih=331&ech=7&psi=-ZDGTvujLIrtOZLU2bsP.1321636116145.1"
-			complete: (resp) ->
-				console.warn resp.responseText
-
-		false
-	
-
-	clickLink: (evt) ->
-		@openLink evt.target.href
+    events:
+        "click aside a": "clickLink"
+        "click nav a": "changeSource"
 
 
-	openLink: (url) ->
-		unless url.match /http/
-			url = "http://" + url
+    initialize: ->
+        @spinner = new Spinner().spin()
+        @section = @$('section').children()
 
-		@section.empty()
-
-		@spinner.spin()
-		@section.append(@spinner.el)
-			.css 'padding-top':'40px'
-		
-		@iframe = global.document.createElement('iframe')
-		@iframe.sandbox = "allow-forms allow-same-origin allow-scripts"
-		@iframe.src = "iframe.html?url=#{url}"
-
-		@section.append @iframe
-
-		false
+        $('header input').autocomplete
+            source: (request, response) =>
+                @suggest request.term, response         
 
 
-	loaded: ->
-		@spinner.stop()
-		@section.css 'padding-top':'0px'
-		readability(@iframe.contentWindow, @iframe.contentDocument)		
+        $('aside').hover -> 
+            if $('aside').hasClass('minimized')
+                $('aside').addClass('hover')
+        , -> 
+            if $('aside').hasClass('minimized')
+                $('aside').removeClass('hover') 
+                
+        
+        @search ""
 
-		setTimeout =>
-			@iframe.style.height = $(@iframe.contentDocument).height() + 'px'
-		, 200
+    
+    suggest: (text, callback) ->
+        if (text.match(/http[s]?:\/\//))
+            return @openLink(text)
+
+        @search text
+
+        $.ajax
+            url: "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=#{text}"
+            complete: (resp) ->
+                results = JSON.parse(resp.responseText)
+                results = _.map results[1], (i) -> 'value':i[0]
+
+                callback _.first results, 4
+
+
+    search: (text) ->
+        @$('aside').removeClass('minimized hover')
+
+        source = @$('nav .active').data('source')
+
+        if source is 'twitter'
+            return @twitterSearch text
+
+        data = 
+            AppID: "F004F1AD3D4BA238DD3F3D67F2D0059E6626F776"
+            jsonType: "callback"
+            Query: text
+            Sources: source
+            Version: "2.0"
+
+        if source is 'News'
+            data.Market = store.get('news_market')
+            data.SortBy = 'Relevance'
+
+        $.ajax              
+            url :'http://api.bing.net/json.aspx?JsonCallback=?'
+            dataType: 'jsonp'
+            data: data          
+            
+            success: (resp) =>              
+                if resp.SearchResponse[source]
+
+                    results = _.map resp.SearchResponse[source].Results, (r) ->
+                        if source is 'Video'
+                            r.Description = "<img src='#{r.StaticThumbnail.Url}' />"
+
+                            match = r.PlayUrl.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/)
+
+                            r.DisplayUrl = match[3]
+                        else
+                            r.Description = (r.Description or r.Snippet)[0..200] + "..."                    
+
+                        result =                    
+                            title: r.Title
+                            article_url: r.Url or r.PlayUrl
+                            site_url: r.DisplayUrl or r.Source
+                            description: r.Description
+                            type: source.toLowerCase()
+                    
+                    
+                    @$('aside').html @search_template 'results': results
+                else
+                    @$('aside').html @search_template 'results': []
+
+                    unless store.get 'news_market'
+                        store.set 'news_market', 'en-US'
+                        @search text
+
+    twitterSearch: (text)->
+        $.ajax
+            url: "http://search.twitter.com/search.json?q=#{text}%20filter:links"
+            dataType: "jsonp"
+            success: (resp) =>
+                unless resp.results
+                    @$('aside').html @search_template 'results': []
+                else
+                    results = _.map resp.results, (r) ->
+                        link = r.text.match(/(http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?/)[0]              
+
+                        result =
+                            title: r.from_user_name                        
+                            article_url: link
+                            description: r.text  
+                            
+                    @$('aside').html @search_template 'results': results                      
+
+
+
+
+    changeSource: (evt) ->
+        if evt.currentTarget.className isnt 'active'
+            @$('nav .active').removeClass('active');
+
+            evt.currentTarget.className = 'active';
+
+            @search @$('header input').val()        
+
+    # Google search
+    # search: (evt) ->      
+    #   text = evt.target.value
+
+    #   @$('aside').addClass('active')
+
+    #   $.ajax
+    #       url: "http://www.google.com/search?q=#{text}&ie=utf-8&as_qdr=all&aq=t&client=psy-ab"
+    #       complete: (resp) =>
+    #           results = $(resp.responseText).find('li.g')
+                
+    #           results = _.map results, (li) ->
+    #               li = $(li)
+    #               title = li.find("h3.r a")
+                    
+    #               result =                    
+    #                   title: title.html()
+    #                   article_url: title.attr('href')
+    #                   site_url: li.find('cite').html()
+    #                   description: li.find('span.st').html()                                              
+                
+    #           @$('aside').html @search_template 'results': results
+
+
+        false
+    
+
+    clickLink: (evt) ->
+        @openLink evt.currentTarget.href
+
+        false
+
+
+    openLink: (url) ->
+        clearInterval @timer
+
+        @$('aside').removeClass('minimized hover')
+
+        window.scroll(0,0)
+
+        unless url.match /http/
+            url = "http://" + url
+
+        @section.empty()
+
+        @spinner.spin(@section[0])
+        
+        @iframe = global.document.createElement('iframe')
+        @iframe.src = "iframe.html?url=#{url}"
+        @iframe.style.visibility = "hidden"
+        @url = url
+
+        @section.append @iframe     
+
+        false
+
+
+    loaded: ->
+        @$('aside').addClass('minimized')       
+
+        readability(@iframe.contentWindow, @iframe.contentDocument, @url)
+        @spinner.stop()
+        @iframe.style.visibility = "visible"
+        
+        @timer = setInterval =>         
+            @iframe.style.height = $(@iframe.contentDocument).height() + 'px'
+        , 1000
 
 
 @app = new App()
 
 @_pageLoaded = ->
-	app.loaded()
+    app.loaded()

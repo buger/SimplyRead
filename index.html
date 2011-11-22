@@ -6,35 +6,41 @@
 
 	<body>
 		<header>
-			<form>
+			<form onsubmit="return false">
 				<input type="text" autofocus name="text"/>
 				<input type="submit" style="display:none"/>
 			</form>
 		</header>
 		<nav>
-			
+			<a data-source="News" class="active">News</a>			
+			<a data-source="Video">Videos</a>
+			<a data-source="twitter">Twitter</a>
+			<a data-source="Web">Everething</a>
 		</nav>
 
 		<article>
 			<aside>
-				<ul>
-					<li>
-						<a href="http://www.nytimes.com/2011/11/05/business/economy/us-added-80000-jobs-in-october.html">NyTimes</a>
-					</li>
-					<li>
-						<a href="http://bloggasm.com/">Blogasm</a>
-					</li>
-					<li>
-						<a href="http://www.moillusions.com/">Moillusions</a>
-					</li>
-					<li>
-						<input type="button" onclick="app.openLink(prompt('Enter any link'));" value="Open any link" />
-					</li>
-				</ul>
+				<ul></ul>
 			</aside>
 			
-			<section></section>
+			<section>
+				<div></div>
+			</section>
 		</article>
+
+		<script id="search_result_tmpl" type="script/template">
+			<ul>
+				{{#each results}}
+					<li>
+						<h3><a href="{{article_url}}">{{{title}}}</a></h3>
+						<div>
+							<cite>{{{site_url}}}</cite>
+							<p>{{{description}}}</p>
+						</div>
+					</li>
+				{{/each}}
+			</ul>
+		</script>
 
 		
 		<script type="text/javascript" src="lib/jquery.min.js"></script>
@@ -43,9 +49,10 @@
 		<script type="text/javascript" src="lib/backbone-min.js"></script>
 		<script type="text/javascript" src="lib/spin.min.js"></script>
 		<script type="text/javascript" src="lib/iscroll.js"></script>
+		<script type="text/javascript" src="lib/handlebars.js"></script>
+		<script type="text/javascript" src="lib/store.js"></script>
 
 		<script type="text/javascript" src="assets/js/readability.js"></script>
-
 		<script type="text/javascript" src="assets/js/app.js"></script>
 	</body>
 </html>
