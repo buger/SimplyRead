@@ -18,7 +18,8 @@
 
     App.prototype.events = {
       "click aside a": "clickLink",
-      "click nav a": "changeSource"
+      "click nav a": "changeSource",
+      "submit header form": "hideSuggestion"
     };
 
     App.prototype.initialize = function() {
@@ -28,6 +29,9 @@
       $('header input').autocomplete({
         source: function(request, response) {
           return _this.suggest(request.term, response);
+        },
+        select: function(evt, ui) {
+          return _this.search(ui.item.value);
         }
       });
       $('aside').hover(function() {
@@ -38,6 +42,10 @@
         }
       });
       return this.search("");
+    };
+
+    App.prototype.hideSuggestion = function() {
+      return $('header input').autocomplete("close");
     };
 
     App.prototype.suggest = function(text, callback) {

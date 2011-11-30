@@ -9,6 +9,7 @@ class App extends Backbone.View
     events:
         "click aside a": "clickLink"
         "click nav a": "changeSource"
+        "submit header form": "hideSuggestion"
 
 
     initialize: ->
@@ -18,7 +19,9 @@ class App extends Backbone.View
         $('header input').autocomplete
             source: (request, response) =>
                 @suggest request.term, response
-
+            select: (evt, ui) => 
+                @search ui.item.value
+                
 
         $('aside').hover -> 
             if $('aside').hasClass('minimized')
@@ -29,6 +32,10 @@ class App extends Backbone.View
                 
         
         @search ""
+
+    
+    hideSuggestion: ->
+        $('header input').autocomplete "close"
 
     
     suggest: (text, callback) ->
