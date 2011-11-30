@@ -128,7 +128,10 @@
     App.prototype.twitterSearch = function(text) {
       var _this = this;
       return $.ajax({
-        url: "http://search.twitter.com/search.json?q=" + text + "%20filter:links",
+        url: "http://search.twitter.com/search.json",
+        data: {
+          q: text + " filter:links"
+        },
         dataType: "jsonp",
         success: function(resp) {
           var results;

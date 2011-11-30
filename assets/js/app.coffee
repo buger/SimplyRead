@@ -106,9 +106,11 @@ class App extends Backbone.View
                         store.set 'news_market', 'en-US'
                         @search text
 
-    twitterSearch: (text)->
+    twitterSearch: (text)->        
         $.ajax
-            url: "http://search.twitter.com/search.json?q=#{text}%20filter:links"
+            url: "http://search.twitter.com/search.json"
+            data:
+                q: text + " filter:links"
             dataType: "jsonp"
             success: (resp) =>
                 unless resp.results
