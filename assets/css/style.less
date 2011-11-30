@@ -136,6 +136,19 @@ article {
         li {
             padding: 0 40px;
             margin-bottom: 20px;            
+            position: relative;
+
+            &.selected {                
+                &:after {
+                    top: 50%;
+                    right: 10px;
+                    position: absolute;
+                    content: ">";
+                    font-weight: bold;
+                    font-size: 18px;
+                    font-family: monospace;
+                }
+            }
         }
 
         h3 {

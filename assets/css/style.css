@@ -19,14 +19,14 @@ header {
   padding: 0px 40px;
   background-color: #dbddf6;
   background-repeat: repeat-x;
-  background-image: -khtml-gradient(linear, left top, left bottom, from(white), to(#dbddf6));
-  background-image: -moz-linear-gradient(top, white, #dbddf6);
-  background-image: -ms-linear-gradient(top, white, #dbddf6);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #dbddf6));
-  background-image: -webkit-linear-gradient(top, white, #dbddf6);
-  background-image: -o-linear-gradient(top, white, #dbddf6);
-  background-image: linear-gradient(top, white, #dbddf6);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='white', endColorstr='#dbddf6', GradientType=0);
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#ffffff), to(#dbddf6));
+  background-image: -moz-linear-gradient(top, #ffffff, #dbddf6);
+  background-image: -ms-linear-gradient(top, #ffffff, #dbddf6);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #dbddf6));
+  background-image: -webkit-linear-gradient(top, #ffffff, #dbddf6);
+  background-image: -o-linear-gradient(top, #ffffff, #dbddf6);
+  background-image: linear-gradient(top, #ffffff, #dbddf6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dbddf6', GradientType=0);
   border-top: 1px solid #f7f8fb;
   border-bottom: 1px solid #c0c1ee;
   display: -webkit-box;
@@ -47,7 +47,7 @@ header input {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  background: white url(../images/search.png) 590px 4px no-repeat;
+  background: #ffffff url(../images/search.png) 590px 4px no-repeat;
 }
 nav {
   position: absolute;
@@ -118,6 +118,7 @@ article aside {
             // Hide scrollbar
             > div { display: none; }          
         }*/
+
   border-right: 1px solid #e0e1e8;
 }
 article aside.hover {
@@ -135,6 +136,16 @@ article aside ul {
 article aside li {
   padding: 0 40px;
   margin-bottom: 20px;
+  position: relative;
+}
+article aside li.selected:after {
+  top: 50%;
+  right: 10px;
+  position: absolute;
+  content: ">";
+  font-weight: bold;
+  font-size: 18px;
+  font-family: monospace;
 }
 article aside h3 {
   color: #12C;
