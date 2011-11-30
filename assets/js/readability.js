@@ -71,7 +71,7 @@ function readability(window, document, url) {
             trim:                  /^\s+|\s+$/g,
             normalize:             /\s{2,}/g,
             killBreaks:            /(<br\s*\/?>(\s|&nbsp;?)*){1,}/g,
-            videos:                /(youtube|vimeo|myvideo)\.(com|de|ru)/i,
+            videos:                /(youtube|vimeo|myvideo|ytimg)\.(com|de|ru)/i,
             skipFootnoteLink:      /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i,
             nextLink:              /(next|weiter|continue|>([^\|]|$)|»([^\|]|$))/i, // Match: next, continue, >, >>, » but not >|, »| as those usually mean last.
             prevLink:              /(prev|earl|old|new|<|«)/i
@@ -691,7 +691,8 @@ function readability(window, document, url) {
 
             /* Clean out junk from the article content */
             readability.cleanConditionally(articleContent, "form");
-            //readability.clean(articleContent, "object");
+            readability.clean(articleContent, "object");
+            readability.clean(articleContent, "embed");
             readability.clean(articleContent, "h1");
 
             /**
@@ -902,9 +903,13 @@ function readability(window, document, url) {
                 
                 /* For every 100 characters in this paragraph, add another point. Up to 3 points. */
                 contentScore += Math.min(Math.floor(innerText.length / 100), 3);
-                
+                if (grandParentNode.id === "watch-video-container")
+                    contentScore = 100;
+
                 /* Add the score to the parent. The grandparent gets half. */
                 parentNode.readability.contentScore += contentScore;
+
+
 
                 if(grandParentNode) {
                     grandParentNode.readability.contentScore += contentScore/2;             
@@ -1650,6 +1655,8 @@ function readability(window, document, url) {
             var isEmbed    = (tag === 'object' || tag === 'embed' || tag === 'iframe');
             
             for (var y=targetList.length-1; y >= 0; y-=1) {
+                console.warn('embed videos')
+
                 /* Allow youtube and vimeo videos through as people usually want to see those. */
                 if(isEmbed) {
                     var attributeValues = "";
@@ -1658,6 +1665,7 @@ function readability(window, document, url) {
                     }
                     
                     /* First, check the elements attributes to see if any of them contain youtube or vimeo */
+                    console.warn(attributeValues)
                     if (attributeValues.search(readability.regexps.videos) !== -1) {
                         continue;
                     }
