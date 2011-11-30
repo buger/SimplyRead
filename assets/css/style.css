@@ -139,13 +139,13 @@ article aside li {
   position: relative;
 }
 article aside li.selected:after {
-  top: 50%;
+  top: 45%;
   right: 10px;
+  width: 11px;
+  height: 23px;
   position: absolute;
-  content: ">";
-  font-weight: bold;
-  font-size: 18px;
-  font-family: monospace;
+  content: "";
+  background: url(../images/chevron.png) center no-repeat;
 }
 article aside h3 {
   color: #12C;
