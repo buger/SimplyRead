@@ -152,6 +152,11 @@ article aside h3 {
   font-size: 16px;
   line-height: 19px;
 }
+article aside date {
+  margin-left: 10px;
+  color: #666;
+  font-size: 13px;
+}
 article aside cite {
   color: #093;
   font-size: 13px;

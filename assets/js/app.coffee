@@ -20,8 +20,7 @@ class App extends Backbone.View
             source: (request, response) =>
                 @suggest request.term, response
             select: (evt, ui) => 
-                @search ui.item.value
-                
+                @search ui.item.value                
 
         $('aside').hover -> 
             if $('aside').hasClass('minimized')
@@ -94,11 +93,12 @@ class App extends Backbone.View
                             title: r.Title
                             article_url: r.Url or r.PlayUrl
                             site_url: r.DisplayUrl or r.Source
+                            date: r.Date
                             description: r.Description
-                            type: source.toLowerCase()
-                    
+                            type: source.toLowerCase()                
                     
                     @$('aside').html @search_template 'results': results
+                    @$('aside date').timeago()
                 else
                     @$('aside').html @search_template 'results': []
 

@@ -103,13 +103,15 @@
                 title: r.Title,
                 article_url: r.Url || r.PlayUrl,
                 site_url: r.DisplayUrl || r.Source,
+                date: r.Date,
                 description: r.Description,
                 type: source.toLowerCase()
               };
             });
-            return _this.$('aside').html(_this.search_template({
+            _this.$('aside').html(_this.search_template({
               'results': results
             }));
+            return _this.$('aside date').timeago();
           } else {
             _this.$('aside').html(_this.search_template({
               'results': []

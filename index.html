@@ -35,6 +35,9 @@
 						<h3><a href="{{article_url}}">{{{title}}}</a></h3>
 						<div>
 							<cite>{{{site_url}}}</cite>
+							{{#if date}}
+							<date title={{date}}></date>
+							{{/if}}
 							<p>{{{description}}}</p>
 						</div>
 					</li>
@@ -44,6 +47,7 @@
 
 		
 		<script type="text/javascript" src="lib/jquery.min.js"></script>
+		<script type="text/javascript" src="lib/jquery.timeago.js"></script>
 		<script type="text/javascript" src="lib/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="lib/underscore-min.js"></script>
 		<script type="text/javascript" src="lib/backbone-min.js"></script>
