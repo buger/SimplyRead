@@ -12,7 +12,7 @@ function readability(window, document, url) {
 
     readStyle = "style-athelas"
     readMargin = "margin-narrow"
-    readSize = "size-large"
+    readSize = "size-medium"
 
     /*jslint undef: true, nomen: true, eqeqeq: true, plusplus: true, newcap: true, immed: true, browser: true, devel: true, passfail: false */
     /*global window: false, readConvertLinksToFootnotes: false, readStyle: false, readSize: false, readMargin: false, Typekit: false, ActiveXObject: false */
