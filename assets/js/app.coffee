@@ -1,4 +1,3 @@
-
 global = @
 
 class App extends Backbone.View
@@ -18,7 +17,7 @@ class App extends Backbone.View
 
         $('header input').autocomplete
             source: (request, response) =>
-                @suggest request.term, response         
+                @suggest request.term, response
 
 
         $('aside').hover -> 
@@ -82,7 +81,7 @@ class App extends Backbone.View
 
                             r.DisplayUrl = match[3]
                         else
-                            r.Description = (r.Description or r.Snippet)[0..200] + "..."                    
+                            r.Description = (r.Description or r.Snippet or "")[0..200] + "..."                    
 
                         result =                    
                             title: r.Title
@@ -116,7 +115,7 @@ class App extends Backbone.View
                             article_url: link
                             description: r.text  
                             
-                    @$('aside').html @search_template 'results': results                      
+                    @$('aside').html @search_template 'results': results
 
 
 
@@ -127,36 +126,14 @@ class App extends Backbone.View
 
             evt.currentTarget.className = 'active';
 
-            @search @$('header input').val()        
-
-    # Google search
-    # search: (evt) ->      
-    #   text = evt.target.value
-
-    #   @$('aside').addClass('active')
-
-    #   $.ajax
-    #       url: "http://www.google.com/search?q=#{text}&ie=utf-8&as_qdr=all&aq=t&client=psy-ab"
-    #       complete: (resp) =>
-    #           results = $(resp.responseText).find('li.g')
-                
-    #           results = _.map results, (li) ->
-    #               li = $(li)
-    #               title = li.find("h3.r a")
-                    
-    #               result =                    
-    #                   title: title.html()
-    #                   article_url: title.attr('href')
-    #                   site_url: li.find('cite').html()
-    #                   description: li.find('span.st').html()                                              
-                
-    #           @$('aside').html @search_template 'results': results
-
+            @search @$('header input').val()
 
         false
     
 
     clickLink: (evt) ->
+        @$('aside li.selected').removeClass('selected')
+        $(evt.currentTarget).closest('li').addClass('selected')
         @openLink evt.currentTarget.href
 
         false
