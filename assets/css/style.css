@@ -139,6 +139,12 @@ article aside li.selected:after {
   content: "";
   background: url(../images/chevron.png) center no-repeat;
 }
+article aside li.twitter cite {
+  display: inline-block;
+  width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 article aside h3 {
   color: #12C;
   font-size: 16px;
@@ -172,7 +178,7 @@ article aside p {
 article aside button {
   display: none;
 }
-article aside img {
+article aside li > img {
   float: left;
   margin-right: 5px;
   width: 48px;

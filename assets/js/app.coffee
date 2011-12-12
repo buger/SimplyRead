@@ -108,7 +108,7 @@ class App extends Backbone.View
                             title: r.Title
                             article_url: r.Url or r.PlayUrl
                             site_url: r.DisplayUrl or r.Source
-                            date: r.Date
+                            date: r.Date 
                             description: r.Description
                             type: source.toLowerCase()
 
@@ -144,10 +144,13 @@ class App extends Backbone.View
                         result =
                             image: r.profile_image_url
                             site_url: r.from_user_name
-                            article_url: "http://twitter.com/#{r.from_user_name}"
+                            article_url: "http://twitter.com/#{r.from_user}"
+                            date: r.created_at
                             description: text
+                            type: 'twitter'
                             
                     @$('aside').html @search_template 'results': results
+                    @$('aside date').timeago()
 
                 $('aside').removeClass('fade') 
 

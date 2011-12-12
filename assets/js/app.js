@@ -163,13 +163,16 @@
               return result = {
                 image: r.profile_image_url,
                 site_url: r.from_user_name,
-                article_url: "http://twitter.com/" + r.from_user_name,
-                description: text
+                article_url: "http://twitter.com/" + r.from_user,
+                date: r.created_at,
+                description: text,
+                type: 'twitter'
               };
             });
             _this.$('aside').html(_this.search_template({
               'results': results
             }));
+            _this.$('aside date').timeago();
           }
           return $('aside').removeClass('fade');
         }
