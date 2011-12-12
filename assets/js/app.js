@@ -37,12 +37,7 @@
           return _this.search(ui.item.value);
         }
       }).bind('keyup', function(evt) {
-        if (evt.currentTarget.value.trim() === "") {
-          _this.$('aside').removeClass('fade');
-          return _this.search("");
-        } else {
-          return _this.$('aside').addClass('fade');
-        }
+        if (evt.currentTarget.value.trim() === "") return _this.search("");
       });
       $('aside').hover(function() {
         if ($('aside').hasClass('minimized')) return $('aside').addClass('hover');

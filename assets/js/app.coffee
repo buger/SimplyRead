@@ -26,11 +26,8 @@ class App extends Backbone.View
                 @search ui.item.value
         .bind 'keyup', (evt) =>
             if evt.currentTarget.value.trim() is ""
-                @$('aside').removeClass('fade')
                 @search ""
-            else
-                @$('aside').addClass('fade')
-
+            
 
         $('aside').hover -> 
             if $('aside').hasClass('minimized')
