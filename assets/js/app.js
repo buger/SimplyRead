@@ -33,6 +33,12 @@
         select: function(evt, ui) {
           return _this.search(ui.item.value);
         }
+      }).bind('keydown', function(evt) {
+        if (evt.currentTarget.value.trim() === "") {
+          return _this.$('aside').removeClass('fade');
+        } else {
+          return _this.$('aside').addClass('fade');
+        }
       });
       $('aside').hover(function() {
         if ($('aside').hasClass('minimized')) return $('aside').addClass('hover');
@@ -69,7 +75,7 @@
     App.prototype.search = function(text) {
       var data, source;
       var _this = this;
-      this.$('aside').removeClass('minimized hover');
+      this.$('aside').addClass('fade');
       source = this.$('nav .active').data('source');
       if (source === 'twitter') return this.twitterSearch(text);
       data = {
@@ -88,7 +94,15 @@
         dataType: 'jsonp',
         data: data,
         success: function(resp) {
-          var results;
+          var pages, results, view;
+          pages = _.map([1, 2, 3, 4, 5], function(n) {
+            return {
+              number: n
+            };
+          });
+          view = {
+            'pages': pages
+          };
           if (resp.SearchResponse[source]) {
             results = _.map(resp.SearchResponse[source].Results, function(r) {
               var match, result;
@@ -108,19 +122,18 @@
                 type: source.toLowerCase()
               };
             });
-            _this.$('aside').html(_this.search_template({
-              'results': results
-            }));
-            return _this.$('aside date').timeago();
+            view.results = results;
+            _this.$('aside').html(_this.search_template(view));
+            _this.$('aside date').timeago();
           } else {
-            _this.$('aside').html(_this.search_template({
-              'results': []
-            }));
+            view.results = [];
+            _this.$('aside').html(_this.search_template(view));
             if (!store.get('news_market')) {
               store.set('news_market', 'en-US');
-              return _this.search(text);
+              _this.search(text);
             }
           }
+          return _this.$('aside').removeClass('fade');
         }
       });
     };

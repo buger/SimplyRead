@@ -106,11 +106,6 @@ article aside {
   width: 350px;
   overflow: hidden;
   top: 150px;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -ms-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
   /*&.minimized {
             .box-shadow(inset -2px 0px 10px -4px rgba(0,0,0,.25));
             width: 40px;  
@@ -173,6 +168,12 @@ article aside p {
 }
 article aside button {
   display: none;
+}
+article aside.fade {
+  filter: alpha(opacity=50);
+  -khtml-opacity: 0.5;
+  -moz-opacity: 0.5;
+  opacity: 0.5;
 }
 .ui-autocomplete {
   position: absolute;

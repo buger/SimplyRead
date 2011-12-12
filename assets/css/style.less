@@ -107,9 +107,8 @@ article {
         width: 350px;
         overflow: hidden;        
 
-        top: 150px;
-
-        .transition();        
+        top: 150px;        
+        //.transition();        
 
         /*&.minimized {
             .box-shadow(inset -2px 0px 10px -4px rgba(0,0,0,.25));
@@ -182,8 +181,9 @@ article {
 
         button { display: none; }
 
-
-
+        &.fade {
+            .opacity(50);
+        }
     }
 }
 

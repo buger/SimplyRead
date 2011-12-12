@@ -20,7 +20,13 @@ class App extends Backbone.View
             source: (request, response) =>
                 @suggest request.term, response
             select: (evt, ui) => 
-                @search ui.item.value                
+                @search ui.item.value
+        .bind 'keydown', (evt) =>
+            if evt.currentTarget.value.trim() is ""
+                @$('aside').removeClass('fade')
+            else
+                @$('aside').addClass('fade')
+
 
         $('aside').hover -> 
             if $('aside').hasClass('minimized')
@@ -37,7 +43,7 @@ class App extends Backbone.View
         $('header input').autocomplete "close"
 
     
-    suggest: (text, callback) ->
+    suggest: (text, callback) ->        
         if (text.match(/http[s]?:\/\//))
             return @openLink(text)
 
@@ -53,7 +59,7 @@ class App extends Backbone.View
 
 
     search: (text) ->
-        @$('aside').removeClass('minimized hover')
+        @$('aside').addClass('fade')
 
         source = @$('nav .active').data('source')
 
@@ -76,7 +82,12 @@ class App extends Backbone.View
             dataType: 'jsonp'
             data: data          
             
-            success: (resp) =>              
+            success: (resp) =>
+                pages = _.map [1..5], (n) -> { number: n }
+
+                view = 
+                    'pages': pages
+
                 if resp.SearchResponse[source]
 
                     results = _.map resp.SearchResponse[source].Results, (r) ->
@@ -95,16 +106,23 @@ class App extends Backbone.View
                             site_url: r.DisplayUrl or r.Source
                             date: r.Date
                             description: r.Description
-                            type: source.toLowerCase()                
+                            type: source.toLowerCase()
+
+                    view.results = results
                     
-                    @$('aside').html @search_template 'results': results
+                    @$('aside').html @search_template view
                     @$('aside date').timeago()
                 else
-                    @$('aside').html @search_template 'results': []
+                    view.results = []
+
+                    @$('aside').html @search_template view
 
                     unless store.get 'news_market'
                         store.set 'news_market', 'en-US'
                         @search text
+
+                @$('aside').removeClass('fade')
+
 
     twitterSearch: (text)->        
         $.ajax
