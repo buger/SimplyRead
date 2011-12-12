@@ -32,6 +32,10 @@
 			<ul>
 				{{#each results}}
 					<li>
+						{{#if image}}
+						<img src="{{image}}" />
+						{{/if}}
+
 						<h3><a href="{{article_url}}">{{{title}}}</a></h3>
 						<div>
 							<cite><a href="{{article_url}}" target="_blank">{{site_url}}</a></cite>

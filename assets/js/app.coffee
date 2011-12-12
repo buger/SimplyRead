@@ -1,5 +1,7 @@
 global = @
 
+rLINK = /((http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?)/ig
+
 class App extends Backbone.View
 
     search_template: Handlebars.compile $("#search_result_tmpl").html()
@@ -8,6 +10,7 @@ class App extends Backbone.View
 
     events:
         "click aside h3 a": "clickLink"
+        "click aside p a": "clickLink"
         "click nav a": "changeSource"
         "submit header form": "hideSuggestion"
 
@@ -136,14 +139,17 @@ class App extends Backbone.View
                     @$('aside').html @search_template 'results': []
                 else
                     results = _.map resp.results, (r) ->
-                        link = r.text.match(/(http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?/)[0]              
+                        text = r.text.replace rLINK, "<a href='$1'>$1</a>"
 
                         result =
-                            title: r.from_user_name                        
-                            article_url: link
-                            description: r.text  
+                            image: r.profile_image_url
+                            site_url: r.from_user_name
+                            article_url: "http://twitter.com/#{r.from_user_name}"
+                            description: text
                             
                     @$('aside').html @search_template 'results': results
+
+                $('aside').removeClass('fade') 
 
 
 
@@ -155,6 +161,8 @@ class App extends Backbone.View
             evt.currentTarget.className = 'active';
 
             @search @$('header input').val()
+
+            $('header input').focus()
 
         false
     

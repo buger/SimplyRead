@@ -8,9 +8,6 @@ html, body {
   height: 100%;
   font-family: Arial;
 }
-body {
-  -webkit-user-select: none;
-}
 header {
   position: absolute;
   top: 0px;
@@ -129,7 +126,7 @@ article aside ul {
   width: 350px;
 }
 article aside li {
-  padding: 0 40px;
+  padding: 0 30px;
   margin-bottom: 20px;
   position: relative;
 }
@@ -146,6 +143,9 @@ article aside h3 {
   color: #12C;
   font-size: 16px;
   line-height: 19px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 article aside date {
   margin-left: 10px;
@@ -157,6 +157,9 @@ article aside cite a {
   font-size: 13px;
   line-height: 15px;
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 article aside cite a:hover {
   text-decoration: underline;
@@ -168,6 +171,13 @@ article aside p {
 }
 article aside button {
   display: none;
+}
+article aside img {
+  float: left;
+  margin-right: 5px;
+  width: 48px;
+  height: 48px;
+  border-radius: 2px;
 }
 article aside.fade {
   filter: alpha(opacity=50);

@@ -1,8 +1,10 @@
 (function() {
-  var App, global;
+  var App, global, rLINK;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   global = this;
+
+  rLINK = /((http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?)/ig;
 
   App = (function() {
 
@@ -18,6 +20,7 @@
 
     App.prototype.events = {
       "click aside h3 a": "clickLink",
+      "click aside p a": "clickLink",
       "click nav a": "changeSource",
       "submit header form": "hideSuggestion"
     };
@@ -150,23 +153,25 @@
         success: function(resp) {
           var results;
           if (!resp.results) {
-            return _this.$('aside').html(_this.search_template({
+            _this.$('aside').html(_this.search_template({
               'results': []
             }));
           } else {
             results = _.map(resp.results, function(r) {
-              var link, result;
-              link = r.text.match(/(http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?/)[0];
+              var result;
+              text = r.text.replace(rLINK, "<a href='$1'>$1</a>");
               return result = {
-                title: r.from_user_name,
-                article_url: link,
-                description: r.text
+                image: r.profile_image_url,
+                site_url: r.from_user_name,
+                article_url: "http://twitter.com/" + r.from_user_name,
+                description: text
               };
             });
-            return _this.$('aside').html(_this.search_template({
+            _this.$('aside').html(_this.search_template({
               'results': results
             }));
           }
+          return $('aside').removeClass('fade');
         }
       });
     };
@@ -176,6 +181,7 @@
         this.$('nav .active').removeClass('active');
         evt.currentTarget.className = 'active';
         this.search(this.$('header input').val());
+        $('header input').focus();
       }
       return false;
     };

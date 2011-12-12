@@ -11,7 +11,7 @@ html, body {
 }
 
 body {
-    -webkit-user-select:none;
+    
 }
 
 
@@ -133,7 +133,7 @@ article {
         border-right: 1px solid #e0e1e8;
 
         li {
-            padding: 0 40px;
+            padding: 0 30px;
             margin-bottom: 20px;            
             position: relative;
 
@@ -154,6 +154,10 @@ article {
             color: #12C;
             font-size: 16px;
             line-height: 19px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;           
         }
 
         date {
@@ -168,6 +172,10 @@ article {
             line-height: 15px;
             text-decoration: none;
 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
             &:hover {
                 text-decoration: underline;
             }
@@ -180,6 +188,14 @@ article {
         }
 
         button { display: none; }
+
+        img {
+            float: left;
+            margin-right: 5px;
+            width: 48px;
+            height: 48px;
+            border-radius: 2px;
+        }
 
         &.fade {
             .opacity(50);
