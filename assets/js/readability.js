@@ -332,8 +332,8 @@ function readability(window, document, url) {
             var articleTools = document.createElement("DIV");
             
             articleTools.id        = "readTools";
-            articleTools.innerHTML =             
-                "<a href='#' onclick='javascript:window.print(); return false;' title='Print page' id='print-page'>Print Page</a>";
+            articleTools.innerHTML = "<a href='#' onclick='javascript:window.print(); return false;' title='Print page' id='print-page'>Print Page</a>"+
+                "<a href='"+url+"' target='_blank' title='Print page' id='original-page'>Print Page</a>"            
             
             return articleTools;
         },
