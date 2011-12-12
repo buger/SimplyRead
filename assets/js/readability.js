@@ -333,7 +333,7 @@ function readability(window, document, url) {
             
             articleTools.id        = "readTools";
             articleTools.innerHTML =             
-                "<a href='#' onclick='javascript:window.print();' title='Print page' id='print-page'>Print Page</a>";
+                "<a href='#' onclick='javascript:window.print(); return false;' title='Print page' id='print-page'>Print Page</a>";
             
             return articleTools;
         },
