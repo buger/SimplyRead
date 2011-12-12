@@ -157,10 +157,14 @@ article aside date {
   color: #666;
   font-size: 13px;
 }
-article aside cite {
+article aside cite a {
   color: #093;
   font-size: 13px;
   line-height: 15px;
+  text-decoration: none;
+}
+article aside cite a:hover {
+  text-decoration: underline;
 }
 article aside p {
   color: #222;

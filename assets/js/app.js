@@ -17,7 +17,7 @@
     App.prototype.el = $('body');
 
     App.prototype.events = {
-      "click aside a": "clickLink",
+      "click aside h3 a": "clickLink",
       "click nav a": "changeSource",
       "submit header form": "hideSuggestion"
     };

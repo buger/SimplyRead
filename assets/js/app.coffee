@@ -7,7 +7,7 @@ class App extends Backbone.View
     el: $('body')
 
     events:
-        "click aside a": "clickLink"
+        "click aside h3 a": "clickLink"
         "click nav a": "changeSource"
         "submit header form": "hideSuggestion"
 
