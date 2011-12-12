@@ -33,9 +33,10 @@
         select: function(evt, ui) {
           return _this.search(ui.item.value);
         }
-      }).bind('keydown', function(evt) {
+      }).bind('keyup', function(evt) {
         if (evt.currentTarget.value.trim() === "") {
-          return _this.$('aside').removeClass('fade');
+          _this.$('aside').removeClass('fade');
+          return _this.search("");
         } else {
           return _this.$('aside').addClass('fade');
         }

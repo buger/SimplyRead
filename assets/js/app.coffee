@@ -21,9 +21,10 @@ class App extends Backbone.View
                 @suggest request.term, response
             select: (evt, ui) => 
                 @search ui.item.value
-        .bind 'keydown', (evt) =>
+        .bind 'keyup', (evt) =>
             if evt.currentTarget.value.trim() is ""
                 @$('aside').removeClass('fade')
+                @search ""
             else
                 @$('aside').addClass('fade')
 
