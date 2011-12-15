@@ -9,6 +9,7 @@ class App extends Backbone.View
     el: $('body')
 
     events:
+        "click cite a": "openSite"
         "click aside h3 a": "clickLink"
         "click aside p a": "clickLink"
         "click nav a": "changeSource"
@@ -152,8 +153,6 @@ class App extends Backbone.View
                 $('aside').removeClass('fade') 
 
 
-
-
     changeSource: (evt) ->
         if evt.currentTarget.className isnt 'active'
             @$('nav .active').removeClass('active');
@@ -195,6 +194,17 @@ class App extends Backbone.View
         @url = url
 
         @section.append @iframe     
+
+        false
+
+
+    openSite: (evt) ->
+        href = evt.currentTarget.href
+        host = href.match(/^(?:f|ht)tp(?:s)?\:\/\/([^\/]+)/)[1]
+            .replace('www.','')
+
+        $('header input').val("site:#{host}")        
+        @search "site:#{host}"
 
         false
 

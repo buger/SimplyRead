@@ -19,6 +19,7 @@
     App.prototype.el = $('body');
 
     App.prototype.events = {
+      "click cite a": "openSite",
       "click aside h3 a": "clickLink",
       "click aside p a": "clickLink",
       "click nav a": "changeSource",
@@ -203,6 +204,15 @@
       this.iframe.style.visibility = "hidden";
       this.url = url;
       this.section.append(this.iframe);
+      return false;
+    };
+
+    App.prototype.openSite = function(evt) {
+      var host, href;
+      href = evt.currentTarget.href;
+      host = href.match(/^(?:f|ht)tp(?:s)?\:\/\/([^\/]+)/)[1].replace('www.', '');
+      $('header input').val("site:" + host);
+      this.search("site:" + host);
       return false;
     };
 
