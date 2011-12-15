@@ -13,6 +13,7 @@ class App extends Backbone.View
         "click aside h3 a": "clickLink"
         "click aside p a": "clickLink"
         "click nav a": "changeSource"
+        "click li.pages a": "changePage"
         "submit header form": "hideSuggestion"
 
 
@@ -60,13 +61,13 @@ class App extends Backbone.View
                 callback _.first results, 4
 
 
-    search: (text) ->
+    search: (text, page = 1) ->
         @$('aside').addClass('fade')
 
         source = @$('nav .active').data('source')
 
         if source is 'twitter'
-            return @twitterSearch text
+            return @twitterSearch text, page
 
         data = 
             AppID: "F004F1AD3D4BA238DD3F3D67F2D0059E6626F776"
@@ -78,6 +79,11 @@ class App extends Backbone.View
         if source is 'News'
             data.Market = store.get('news_market')
             data.SortBy = 'Relevance'
+            data['News.Offset'] = (page-1) * 10
+        else if source is 'Web'
+            data['Web.Offset'] = (page-1) * 10
+        else if source is 'Video'
+            data['Video.Offset'] = (page-1) * 10
 
         $.ajax              
             url :'http://api.bing.net/json.aspx?JsonCallback=?'
@@ -85,7 +91,10 @@ class App extends Backbone.View
             data: data          
             
             success: (resp) =>
-                pages = _.map [1..5], (n) -> { number: n }
+                unless text.trim() is ""
+                    pages = _.map [1..5], (n) -> 
+                        number: n
+                        current: n is page
 
                 view = 
                     'pages': pages
@@ -126,11 +135,18 @@ class App extends Backbone.View
                 @$('aside').removeClass('fade')
 
 
-    twitterSearch: (text)->        
+    twitterSearch: (text, page) ->
+        unless text.trim() is ""
+            pages = _.map [1..5], (n) -> 
+                number: n
+                current: n is page
+          
         $.ajax
             url: "http://search.twitter.com/search.json"
             data:
                 q: text + " filter:links"
+                rpp: 15
+                page: page
             dataType: "jsonp"
             success: (resp) =>
                 unless resp.results
@@ -146,8 +162,12 @@ class App extends Backbone.View
                             date: r.created_at
                             description: text
                             type: 'twitter'
+                    
+                    view = 
+                        'results': results
+                        'pages': pages
                             
-                    @$('aside').html @search_template 'results': results
+                    @$('aside').html @search_template view
                     @$('aside date').timeago()
 
                 $('aside').removeClass('fade') 
@@ -199,14 +219,20 @@ class App extends Backbone.View
 
 
     openSite: (evt) ->
-        href = evt.currentTarget.href
-        host = href.match(/^(?:f|ht)tp(?:s)?\:\/\/([^\/]+)/)[1]
-            .replace('www.','')
+        unless $(evt.currentTarget).closest('li').hasClass('twitter')
+            href = evt.currentTarget.href
+            host = href.match(/^(?:f|ht)tp(?:s)?\:\/\/([^\/]+)/)[1]
+                .replace('www.','')
 
-        $('header input').val("site:#{host}")        
-        @search "site:#{host}"
+            $('header input').val("site:#{host}")        
+            @search "site:#{host}"
 
-        false
+            false
+
+
+    changePage: (evt) ->
+        page = + evt.currentTarget.innerHTML
+        @search $('header input').val(), page
 
 
     loaded: ->

@@ -145,6 +145,14 @@ article aside li.twitter cite {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+article aside li.pages a {
+  margin-right: 10px;
+}
+article aside li.pages a.current {
+  text-decoration: none;
+  color: #333;
+  cursor: default;
+}
 article aside h3 {
   color: #12C;
   font-size: 16px;

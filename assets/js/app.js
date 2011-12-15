@@ -23,6 +23,7 @@
       "click aside h3 a": "clickLink",
       "click aside p a": "clickLink",
       "click nav a": "changeSource",
+      "click li.pages a": "changePage",
       "submit header form": "hideSuggestion"
     };
 
@@ -72,12 +73,13 @@
       });
     };
 
-    App.prototype.search = function(text) {
+    App.prototype.search = function(text, page) {
       var data, source;
       var _this = this;
+      if (page == null) page = 1;
       this.$('aside').addClass('fade');
       source = this.$('nav .active').data('source');
-      if (source === 'twitter') return this.twitterSearch(text);
+      if (source === 'twitter') return this.twitterSearch(text, page);
       data = {
         AppID: "F004F1AD3D4BA238DD3F3D67F2D0059E6626F776",
         jsonType: "callback",
@@ -88,6 +90,11 @@
       if (source === 'News') {
         data.Market = store.get('news_market');
         data.SortBy = 'Relevance';
+        data['News.Offset'] = (page - 1) * 10;
+      } else if (source === 'Web') {
+        data['Web.Offset'] = (page - 1) * 10;
+      } else if (source === 'Video') {
+        data['Video.Offset'] = (page - 1) * 10;
       }
       return $.ajax({
         url: 'http://api.bing.net/json.aspx?JsonCallback=?',
@@ -95,11 +102,14 @@
         data: data,
         success: function(resp) {
           var pages, results, view;
-          pages = _.map([1, 2, 3, 4, 5], function(n) {
-            return {
-              number: n
-            };
-          });
+          if (text.trim() !== "") {
+            pages = _.map([1, 2, 3, 4, 5], function(n) {
+              return {
+                number: n,
+                current: n === page
+              };
+            });
+          }
           view = {
             'pages': pages
           };
@@ -138,16 +148,27 @@
       });
     };
 
-    App.prototype.twitterSearch = function(text) {
+    App.prototype.twitterSearch = function(text, page) {
+      var pages;
       var _this = this;
+      if (text.trim() !== "") {
+        pages = _.map([1, 2, 3, 4, 5], function(n) {
+          return {
+            number: n,
+            current: n === page
+          };
+        });
+      }
       return $.ajax({
         url: "http://search.twitter.com/search.json",
         data: {
-          q: text + " filter:links"
+          q: text + " filter:links",
+          rpp: 15,
+          page: page
         },
         dataType: "jsonp",
         success: function(resp) {
-          var results;
+          var results, view;
           if (!resp.results) {
             _this.$('aside').html(_this.search_template({
               'results': []
@@ -165,9 +186,11 @@
                 type: 'twitter'
               };
             });
-            _this.$('aside').html(_this.search_template({
-              'results': results
-            }));
+            view = {
+              'results': results,
+              'pages': pages
+            };
+            _this.$('aside').html(_this.search_template(view));
             _this.$('aside date').timeago();
           }
           return $('aside').removeClass('fade');
@@ -209,11 +232,19 @@
 
     App.prototype.openSite = function(evt) {
       var host, href;
-      href = evt.currentTarget.href;
-      host = href.match(/^(?:f|ht)tp(?:s)?\:\/\/([^\/]+)/)[1].replace('www.', '');
-      $('header input').val("site:" + host);
-      this.search("site:" + host);
-      return false;
+      if (!$(evt.currentTarget).closest('li').hasClass('twitter')) {
+        href = evt.currentTarget.href;
+        host = href.match(/^(?:f|ht)tp(?:s)?\:\/\/([^\/]+)/)[1].replace('www.', '');
+        $('header input').val("site:" + host);
+        this.search("site:" + host);
+        return false;
+      }
+    };
+
+    App.prototype.changePage = function(evt) {
+      var page;
+      page = +evt.currentTarget.innerHTML;
+      return this.search($('header input').val(), page);
     };
 
     App.prototype.loaded = function() {

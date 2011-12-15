@@ -49,9 +49,9 @@
 					</li>
 				{{/each}}
 				{{#if results}}
-				<li class="pages" style="display: none">
+				<li class="pages">
 					{{#each pages}}
-					<a href="#">{{number}}</a>
+					<a href="#" {{#if current}}class="current"{{/if}}>{{number}}</a>
 					{{/each}}					
 				</li>
 				{{/if}}
