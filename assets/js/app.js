@@ -1,5 +1,5 @@
 (function() {
-  var App, global, rLINK;
+  var App, country, global, market, rLINK;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   global = this;
@@ -24,6 +24,8 @@
       "click aside p a": "clickLink",
       "click nav a": "changeSource",
       "click li.pages a": "changePage",
+      "click header form img": "showMarkets",
+      "click header .markets span": "changeMarket",
       "submit header form": "hideSuggestion"
     };
 
@@ -48,7 +50,14 @@
           return $('aside').removeClass('hover');
         }
       });
-      return this.search("");
+      this.search("");
+      return $('body').bind('click', function(evt) {
+        var t;
+        t = evt.currentTarget;
+        if (!($(t).parent().hasClass('markets') || t.nodeName === 'IMG')) {
+          return $('header .markets').hide();
+        }
+      });
     };
 
     App.prototype.hideSuggestion = function() {
@@ -73,10 +82,11 @@
       });
     };
 
-    App.prototype.search = function(text, page) {
+    App.prototype.search = function(text, page, market) {
       var data, source;
       var _this = this;
       if (page == null) page = 1;
+      if (market == null) market = store.get('market');
       this.$('aside').addClass('fade');
       source = this.$('nav .active').data('source');
       if (source === 'twitter') return this.twitterSearch(text, page);
@@ -88,12 +98,14 @@
         Version: "2.0"
       };
       if (source === 'News') {
-        data.Market = store.get('news_market');
+        data.Market = market;
         data.SortBy = 'Relevance';
         data['News.Offset'] = (page - 1) * 10;
       } else if (source === 'Web') {
+        data.Market = market;
         data['Web.Offset'] = (page - 1) * 10;
       } else if (source === 'Video') {
+        data.Market = market;
         data['Video.Offset'] = (page - 1) * 10;
       }
       return $.ajax({
@@ -136,12 +148,10 @@
             _this.$('aside').html(_this.search_template(view));
             _this.$('aside date').timeago();
           } else {
+            console.warn('no results');
             view.results = [];
             _this.$('aside').html(_this.search_template(view));
-            if (!store.get('news_market')) {
-              store.set('news_market', 'en-US');
-              _this.search(text);
-            }
+            if (market !== 'en-US') _this.search(text, null, 'en-US');
           }
           return _this.$('aside').removeClass('fade');
         }
@@ -258,6 +268,22 @@
       }, 1000);
     };
 
+    App.prototype.showMarkets = function() {
+      return this.$('header .markets').toggle();
+    };
+
+    App.prototype.changeMarket = function(evt) {
+      var country, market;
+      market = $(evt.currentTarget).data('market');
+      store.set('market', market);
+      country = market.split('-')[1].toLowerCase();
+      $('header form img').attr({
+        'src': "/assets/images/flags/" + country + ".png"
+      });
+      $(evt.currentTarget).parent().hide();
+      return this.search($('header input').val());
+    };
+
     return App;
 
   })();
@@ -267,5 +293,23 @@
   this._pageLoaded = function() {
     return app.loaded();
   };
+
+  $('header .markets span').each(function(i, e) {
+    var country;
+    country = $(e).data('market').split('-')[1].toLowerCase();
+    return $(e).css({
+      'background-image': "url(/assets/images/flags/" + country + ".png)"
+    });
+  });
+
+  if (!store.get('market')) store.set('market', 'en-US');
+
+  market = store.get('market');
+
+  country = market.split('-')[1].toLowerCase();
+
+  $('header form img').attr({
+    'src': "/assets/images/flags/" + country + ".png"
+  });
 
 }).call(this);

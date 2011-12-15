@@ -14,6 +14,8 @@ class App extends Backbone.View
         "click aside p a": "clickLink"
         "click nav a": "changeSource"
         "click li.pages a": "changePage"
+        "click header form img": "showMarkets"
+        "click header .markets span": "changeMarket"
         "submit header form": "hideSuggestion"
 
 
@@ -41,6 +43,12 @@ class App extends Backbone.View
         
         @search ""
 
+        $('body').bind 'click', (evt) ->
+            t = evt.currentTarget
+
+            unless $(t).parent().hasClass('markets') or t.nodeName is 'IMG'
+                $('header .markets').hide()
+
     
     hideSuggestion: ->
         $('header input').autocomplete "close"
@@ -61,7 +69,9 @@ class App extends Backbone.View
                 callback _.first results, 4
 
 
-    search: (text, page = 1) ->
+    search: (text, page = 1, market) ->
+        market ?= store.get('market')
+
         @$('aside').addClass('fade')
 
         source = @$('nav .active').data('source')
@@ -77,12 +87,14 @@ class App extends Backbone.View
             Version: "2.0"
 
         if source is 'News'
-            data.Market = store.get('news_market')
+            data.Market = market
             data.SortBy = 'Relevance'
             data['News.Offset'] = (page-1) * 10
         else if source is 'Web'
+            data.Market = market
             data['Web.Offset'] = (page-1) * 10
         else if source is 'Video'
+            data.Market = market
             data['Video.Offset'] = (page-1) * 10
 
         $.ajax              
@@ -124,13 +136,14 @@ class App extends Backbone.View
                     @$('aside').html @search_template view
                     @$('aside date').timeago()
                 else
+                    console.warn 'no results'
+
                     view.results = []
 
                     @$('aside').html @search_template view
 
-                    unless store.get 'news_market'
-                        store.set 'news_market', 'en-US'
-                        @search text
+                    if market isnt 'en-US'
+                        @search text, null, 'en-US'
 
                 @$('aside').removeClass('fade')
 
@@ -247,7 +260,43 @@ class App extends Backbone.View
         , 1000
 
 
+    showMarkets: ->
+        @$('header .markets').toggle()
+
+
+    changeMarket: (evt) ->
+        market = $(evt.currentTarget).data('market')
+        store.set('market', market)
+        country = market.split('-')[1].toLowerCase()
+
+        $('header form img').attr
+            'src': "/assets/images/flags/#{country}.png"
+
+        $(evt.currentTarget).parent().hide()
+
+        @search $('header input').val()
+
+
+
+
 @app = new App()
 
 @_pageLoaded = ->
     app.loaded()
+
+$('header .markets span').each (i, e) ->
+    country = $(e).data('market').split('-')[1].toLowerCase()
+
+    $(e).css
+        'background-image': "url(/assets/images/flags/#{country}.png)"
+
+
+unless store.get('market')
+    store.set('market', 'en-US')
+
+
+market = store.get('market')
+country = market.split('-')[1].toLowerCase()
+
+$('header form img').attr
+    'src': "/assets/images/flags/#{country}.png"
