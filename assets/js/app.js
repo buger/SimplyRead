@@ -65,18 +65,30 @@
     };
 
     App.prototype.suggest = function(text, callback) {
+      var data, market;
       if (text.match(/http[s]?:\/\//)) return this.openLink(text);
       this.search(text);
+      market = store.get('market');
+      console.warn('market', market, store.get('market'));
+      data = {
+        Market: market,
+        Query: text,
+        jsonType: 'callback'
+      };
       return $.ajax({
-        url: "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=" + text,
-        complete: function(resp) {
+        url: "http://api.bing.net/qson.aspx?JsonCallback=?",
+        dataType: 'jsonp',
+        data: data,
+        cache: true,
+        success: function(resp) {
           var results;
-          results = JSON.parse(resp.responseText);
-          results = _.map(results[1], function(i) {
+          console.warn(resp.SearchSuggestion, resp);
+          results = _.map(resp.SearchSuggestion.Section, function(i) {
             return {
-              'value': i[0]
+              'value': i.Text
             };
           });
+          console.warn('calling callback', results);
           return callback(_.first(results, 4));
         }
       });
@@ -148,10 +160,9 @@
             _this.$('aside').html(_this.search_template(view));
             _this.$('aside date').timeago();
           } else {
-            console.warn('no results');
+            if (market !== 'en-US') return _this.search(text, null, 'en-US');
             view.results = [];
             _this.$('aside').html(_this.search_template(view));
-            if (market !== 'en-US') _this.search(text, null, 'en-US');
           }
           return _this.$('aside').removeClass('fade');
         }

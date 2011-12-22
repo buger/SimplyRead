@@ -60,11 +60,26 @@ class App extends Backbone.View
 
         @search text
 
+        market = store.get('market')
+
+        console.warn 'market', market, store.get('market')
+
+        data = 
+            Market: market
+            Query: text
+            jsonType: 'callback'
+
+
         $.ajax
-            url: "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=#{text}"
-            complete: (resp) ->
-                results = JSON.parse(resp.responseText)
-                results = _.map results[1], (i) -> 'value':i[0]
+            url: "http://api.bing.net/qson.aspx?JsonCallback=?"
+            dataType: 'jsonp'
+            data: data
+            cache: true
+            success: (resp) ->  
+                console.warn resp.SearchSuggestion, resp
+                results = _.map resp.SearchSuggestion.Section, (i) -> 'value':i.Text
+                
+                console.warn 'calling callback', results
 
                 callback _.first results, 4
 
@@ -136,14 +151,13 @@ class App extends Backbone.View
                     @$('aside').html @search_template view
                     @$('aside date').timeago()
                 else
-                    console.warn 'no results'
+                    if market isnt 'en-US'
+                        return @search text, null, 'en-US'
 
                     view.results = []
 
                     @$('aside').html @search_template view
 
-                    if market isnt 'en-US'
-                        @search text, null, 'en-US'
 
                 @$('aside').removeClass('fade')
 
