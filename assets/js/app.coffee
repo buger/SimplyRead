@@ -253,8 +253,14 @@ class App extends Backbone.View
 
             $('header input').val("site:#{host}")        
             @search "site:#{host}"
+        else
+            href = evt.currentTarget.href
+            twitter = href.replace('http://twitter.com/','')
 
-            false
+            $('header input').val("from:#{twitter}")  
+            @search "from:#{twitter}"
+
+        false
 
 
     changePage: (evt) ->

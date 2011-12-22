@@ -252,14 +252,19 @@
     };
 
     App.prototype.openSite = function(evt) {
-      var host, href;
+      var host, href, twitter;
       if (!$(evt.currentTarget).closest('li').hasClass('twitter')) {
         href = evt.currentTarget.href;
         host = href.match(/^(?:f|ht)tp(?:s)?\:\/\/([^\/]+)/)[1].replace('www.', '');
         $('header input').val("site:" + host);
         this.search("site:" + host);
-        return false;
+      } else {
+        href = evt.currentTarget.href;
+        twitter = href.replace('http://twitter.com/', '');
+        $('header input').val("from:" + twitter);
+        this.search("from:" + twitter);
       }
+      return false;
     };
 
     App.prototype.changePage = function(evt) {
