@@ -1,10 +1,49 @@
 (function() {
-  var App, country, global, market, rLINK;
+  var App, GMarkets, country, global, market, rLINK;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   global = this;
 
   rLINK = /((http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?)/ig;
+
+  GMarkets = {
+    'es-AR': ['es-419', 'ar'],
+    'en-AU': ['en', 'au'],
+    'de-AT': ['de', 'at'],
+    'nl-BE': ['de', 'be'],
+    'fr-BE': ['fr', 'be'],
+    'pt-BR': ['pt-BR', 'br'],
+    'en-CA': ['en', 'ca'],
+    'fr-CA': ['fr', 'ca'],
+    'es-CL': ['es-419', 'cl'],
+    'da-DK': ['da', 'dk'],
+    'fi-FI': ['fi', 'fi'],
+    'fr-FR': ['fr', 'fr'],
+    'de-DE': ['de', 'de'],
+    'zh-HK': ['zh-CN', 'hk'],
+    'en-IN': ['en', 'in'],
+    'en-IE': ['en', 'ie'],
+    'it-IT': ['it', 'it'],
+    'ja-JP': ['ja', 'jp'],
+    'ko-KO': ['ko', 'kr'],
+    'es-MX': ['es-419', 'mx'],
+    'nl-NL': ['nl', 'nl'],
+    'en-NZ': ['en', 'nz'],
+    'no-NO': ['no', 'no'],
+    'zh-CN': ['zh-CN', 'cn'],
+    'pt-PT': ['pt-PT', 'bt'],
+    'en-PH': ['en', 'ph'],
+    'ru-RU': ['ru', 'ru'],
+    'en-SG': ['en', 'sg'],
+    'es-ES': ['es', 'es'],
+    'sv-SE': ['sv', 'se'],
+    'fr-CH': ['fr', 'ch'],
+    'de-CH': ['de', 'ch'],
+    'zh-TW': ['zh-CN', 'tw'],
+    'en-GB': ['en', 'uk'],
+    'en-US': ['en', 'us'],
+    'es-US': ['es-491', 'us']
+  };
 
   App = (function() {
 
@@ -65,10 +104,14 @@
     };
 
     App.prototype.suggest = function(text, callback) {
+      var gmarket, url;
       if (text.match(/http[s]?:\/\//)) return this.openLink(text);
       this.search(text);
+      gmarket = GMarkets[store.get('market') || 'en-US'];
+      url = "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=" + text;
+      url += "&hl=" + gmarket[0] + "&gl=" + gmarket[1];
       return $.ajax({
-        url: "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=" + text,
+        url: url,
         complete: function(resp) {
           var results;
           results = JSON.parse(resp.responseText);

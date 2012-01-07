@@ -2,6 +2,45 @@ global = @
 
 rLINK = /((http|https):\/\/([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\\\\/\\?\\.\\:\\;\\'\\,]*)?)/ig
 
+
+GMarkets =
+    'es-AR': ['es-419', 'ar']
+    'en-AU': ['en', 'au']
+    'de-AT': ['de', 'at']
+    'nl-BE': ['de', 'be']
+    'fr-BE': ['fr', 'be']
+    'pt-BR': ['pt-BR', 'br']
+    'en-CA': ['en', 'ca']
+    'fr-CA': ['fr', 'ca']
+    'es-CL': ['es-419', 'cl']
+    'da-DK': ['da', 'dk']
+    'fi-FI': ['fi', 'fi']
+    'fr-FR': ['fr', 'fr']
+    'de-DE': ['de', 'de']
+    'zh-HK': ['zh-CN', 'hk']
+    'en-IN': ['en', 'in']
+    'en-IE': ['en', 'ie']
+    'it-IT': ['it', 'it']
+    'ja-JP': ['ja', 'jp']
+    'ko-KO': ['ko', 'kr']
+    'es-MX': ['es-419', 'mx']
+    'nl-NL': ['nl', 'nl']
+    'en-NZ': ['en', 'nz']
+    'no-NO': ['no', 'no']
+    'zh-CN': ['zh-CN', 'cn']
+    'pt-PT': ['pt-PT', 'bt']
+    'en-PH': ['en', 'ph']
+    'ru-RU': ['ru', 'ru']
+    'en-SG': ['en', 'sg']
+    'es-ES': ['es', 'es']
+    'sv-SE': ['sv', 'se']
+    'fr-CH': ['fr', 'ch']
+    'de-CH': ['de', 'ch']
+    'zh-TW': ['zh-CN', 'tw']
+    'en-GB': ['en', 'uk']
+    'en-US': ['en', 'us']
+    'es-US': ['es-491', 'us']
+
 class App extends Backbone.View
 
     search_template: Handlebars.compile $("#search_result_tmpl").html()
@@ -60,8 +99,13 @@ class App extends Backbone.View
 
         @search text
 
+        gmarket = GMarkets[store.get('market') or 'en-US']
+
+        url = "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=#{text}"
+        url += "&hl=#{gmarket[0]}&gl=#{gmarket[1]}"
+
         $.ajax
-            url: "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=#{text}"
+            url: url
             complete: (resp) ->
                 results = JSON.parse(resp.responseText)
                 results = _.map results[1], (i) -> 'value':i[0]
