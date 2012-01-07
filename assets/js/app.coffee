@@ -60,26 +60,11 @@ class App extends Backbone.View
 
         @search text
 
-        market = store.get('market')
-
-        console.warn 'market', market, store.get('market')
-
-        data = 
-            Market: market
-            Query: text
-            jsonType: 'callback'
-
-
         $.ajax
-            url: "http://api.bing.net/qson.aspx?JsonCallback=?"
-            dataType: 'jsonp'
-            data: data
-            cache: true
-            success: (resp) ->  
-                console.warn resp.SearchSuggestion, resp
-                results = _.map resp.SearchSuggestion.Section, (i) -> 'value':i.Text
-                
-                console.warn 'calling callback', results
+            url: "http://www.google.com/s?cp=2&gs_id=c&xhr=t&q=#{text}"
+            complete: (resp) ->
+                results = JSON.parse(resp.responseText)
+                results = _.map results[1], (i) -> 'value':i[0]
 
                 callback _.first results, 4
 
