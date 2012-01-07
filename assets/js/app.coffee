@@ -333,6 +333,7 @@ class App extends Backbone.View
 @_pageLoaded = ->
     app.loaded()
 
+
 $('header .markets span').each (i, e) ->
     country = $(e).data('market').split('-')[1].toLowerCase()
 
@@ -349,3 +350,13 @@ country = market.split('-')[1].toLowerCase()
 
 $('header form img').attr
     'src': "/assets/images/flags/#{country}.png"
+
+if document.location.search
+    params = document.location.search.replace('?','').split('=')
+
+    if params[0] is 'url'
+        $('header input').val params[1]
+        $('header input').blur()
+        app.openLink(params[1])        
+
+

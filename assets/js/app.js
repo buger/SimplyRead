@@ -1,5 +1,5 @@
 (function() {
-  var App, GMarkets, country, global, market, rLINK;
+  var App, GMarkets, country, global, market, params, rLINK;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   global = this;
@@ -358,5 +358,14 @@
   $('header form img').attr({
     'src': "/assets/images/flags/" + country + ".png"
   });
+
+  if (document.location.search) {
+    params = document.location.search.replace('?', '').split('=');
+    if (params[0] === 'url') {
+      $('header input').val(params[1]);
+      $('header input').blur();
+      app.openLink(params[1]);
+    }
+  }
 
 }).call(this);

@@ -7,9 +7,11 @@
     	"launch": {
       		"local_path": "index.html"
     	}
-	}, 	
+	},
+
+	"background_page": "bg.html",
 
 	"permissions": [
-  		"http://*/*", "https://*/*"
+  		"http://*/*", "https://*/*", "contextMenus", "tabs"
 	]
 }

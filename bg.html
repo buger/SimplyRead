@@ -1,0 +1,17 @@
+<html>
+	<head></head>
+	<body>
+		<script type="text/javascript">
+			chrome.contextMenus.create({
+				title: "Simply Read",
+				onclick: function(data){					
+					url = chrome.extension.getURL('/index.html') + "?url=" +data.pageUrl
+
+					chrome.tabs.create({
+						url: url
+					})
+				}
+			})
+		</script>
+	</body>
+</html>
